@@ -136,6 +136,15 @@ class ElizaTest(unittest.TestCase):
                 'Lets discuss further why your father is afraid of everybody .',
             ])
 
+    def test_response_2(self):
+        el = eliza.Eliza()
+        el.load('doctor.txt')
+        self.assertEqual(el.initial(), 'How do you do.  Please tell me your problem.')
+        self.assertIn(el.respond('Hello'), [
+            'How do you do. Please state your problem.',
+            'Hi. What seems to be your problem ?'])
+        self.assertEqual(el.final(), 'Goodbye.  Thank you for talking to me.')
+
 
 if __name__ == '__main__':
     unittest.main()

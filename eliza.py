@@ -113,6 +113,8 @@ class Eliza:
     def _reassemble(self, reasmb, results):
         output = []
         for reword in reasmb:
+            if not reword:
+                continue
             if reword[0] == '(' and reword[-1] == ')':
                 index = int(reword[1:-1])
                 if index < 1 or index > len(results):
