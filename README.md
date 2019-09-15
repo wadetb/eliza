@@ -2,7 +2,7 @@
 
 Loosely based on Charles Hayden's version in Java, at http://chayden.net/eliza/Eliza.html. 
 
-I feel that it is fairly complete. However there are some holes, as the library was written immediately prior to my discovery of Joeseph Weizenbaum's own description of the original program, which is quite detailed, along with the original "doctor" script. Oh well. A copy of that article is provided in the repo as a reference to the correct behavior.
+I feel that it is fairly complete. However there are some holes, as the library was written immediately prior to my discovery of Joseph Weizenbaum's own description of the original program, which is quite detailed, along with the original "doctor" script. Oh well. A copy of that article is provided in the repo as a reference to the correct behavior.
 
 ## Usage
 
