@@ -169,7 +169,7 @@ class Eliza:
         return None
 
     def respond(self, text):
-        if text in self.quits:
+        if text.lower() in self.quits:
             return None
 
         text = re.sub(r'\s*\.+\s*', ' . ', text)
