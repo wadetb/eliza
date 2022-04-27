@@ -145,6 +145,14 @@ class ElizaTest(unittest.TestCase):
             'Hi. What seems to be your problem ?'])
         self.assertEqual(el.final(), 'Goodbye.  Thank you for talking to me.')
 
+    def test_general(self): 
+        el = eliza.Eliza()
+        el.load("doctor.txt")
+        self.assertIn(el.respond("Why?") ,
+                      [ "I'm not sure I understand you fully."] )
+    
+    
+    
 
 if __name__ == '__main__':
     unittest.main()
