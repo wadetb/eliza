@@ -1,36 +1,27 @@
-# Eliza chatbot in Python
+# Running Python in the Browser with WebAssembly
 
-Loosely based on Charles Hayden's version in Java, at http://chayden.net/eliza/Eliza.html. 
+A code editor that runs Python in the browser using Pyodide, CodeMirror and WebAssembly.
 
-I feel that it is fairly complete. However there are some holes, as the library was written immediately prior to my discovery of Joseph Weizenbaum's own description of the original program, which is quite detailed, along with the original "doctor" script. Oh well. A copy of that article is provided in the repo as a reference to the correct behavior.
+## Want to learn how to build this?
 
-## Usage
+Check out the [post](https://testdriven.io/blog/python-webassembly/).
 
-Can be run interactively:
+## Want to use this project?
 
-```
-$ python eliza.py
-How do you do.  Please tell me your problem.
-> I would like to have a chat bot.
-You say you would like to have a chat bot ?
-> bye
-Goodbye.  Thank you for talking to me.
-```
+1. Clone the repo:
 
-...or imported and used as a library:
+   `git clone https://github.com/amirtds/python_editor_wasm`
+1. Create a virtual environment and Install the dependencies:
 
-```python
-import eliza
+    ```bash
+    cd python_editor_wasm
+    python3.10 -m venv env
+    source env/bin/activate
+    pip install -r requirements.txt
+    ```
 
-eliza = eliza.Eliza()
-eliza.load('doctor.txt')
+1. Run the flask app:
 
-print(eliza.initial())
-while True:
-    said = input('> ')
-    response = eliza.respond(said)
-    if response is None:
-        break
-    print(response)
-print(eliza.final())
-```
+   `flask run`
+
+1. Navigate to [http://127.0.0.1:5000/](http://127.0.0.1:5000/)

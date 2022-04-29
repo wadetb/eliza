@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "codemirror": "^5.65.3",
+    "express": "^4.17.3",
+    "request-promise": "^4.2.6",
+    "tailwindcss": "^3.0.24"
+  }
+}
