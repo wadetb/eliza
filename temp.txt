@@ -1,0 +1,121 @@
+class Eliza:
+    def __init__(self):
+        self.initials = []
+        self.finals = []
+        self.quits = []
+        self.pres = {}
+        self.posts = {}
+        self.synons = {}
+        self.keys = {}
+        self.memory = []
+
+    def load(self, path):
+        key = None
+        decomp = None
+        with open(path) as file:
+            for line in file:
+                if not line.strip():
+                    continue
+                tag, content = [part.strip() for part in line.split(':')]
+                if tag == 'initial':
+                    self.initials.append(content)
+                elif tag == 'final':
+                    self.finals.append(content)
+                elif tag == 'quit':
+                    self.quits.append(content)
+                elif tag == 'pre':
+                    parts = content.split(' ')
+                    self.pres[parts[0]] = parts[1:]
+                elif tag == 'post':
+                    parts = content.split(' ')
+                    self.posts[parts[0]] = parts[1:]
+                elif tag == 'synon':
+                    parts = content.split(' ')
+                    self.synons[parts[0]] = parts
+                elif tag == 'key':
+                    parts = content.split(' ')
+                    word = parts[0]
+                    weight = int(parts[1]) if len(parts) > 1 else 1
+                    key = Key(word, weight, [])
+                    self.keys[word] = key
+                elif tag == 'decomp':
+                    parts = content.split(' ')
+                    save = False
+                    if parts[0] == '$':
+                        save = True
+                        parts = parts[1:]
+                    decomp = Decomp(parts, save, [])
+                    key.decomps.append(decomp)
+                elif tag == 'reasmb':
+                    parts = content.split(' ')
+                    decomp.reasmbs.append(parts)
+
+data file
+initial: How do you do.  Please tell me your problem.
+final: Goodbye.  Thank you for talking to me.
+quit: bye
+quit: goodbye
+pre: dont don't
+pre: cant can't
+pre: wont won't
+pre: recollect remember
+post: am are
+post: your my
+post: me you
+post: myself yourself
+post: yourself myself
+synon: belief feel think believe wish
+synon: family mother mom father dad sister brother wife children child
+synon: desire want need
+synon: sad unhappy depressed sick
+synon: happy elated glad better
+key: sorry
+  decomp: *
+    reasmb: Please don't apologise.
+    reasmb: Apologies are not necessary.
+    reasmb: I've told you that apologies are not required.
+key: apologise
+  decomp: *
+    reasmb: goto sorry
+key: i
+  decomp: * i @desire *
+    reasmb: What would it mean to you if you got (3) ?
+    reasmb: Why do you want (3) ?
+    reasmb: Suppose you got (3) soon ?
+    reasmb: What if you never got (3) ?
+    reasmb: What would getting (3) mean to you ?
+    reasmb: What does wanting (3) have to do with this discussion ?
+  decomp: * i am * @sad *
+    reasmb: I am sorry to hear that you are (3) .
+    reasmb: Do you think that coming here will help you not to be (3) ?
+    reasmb: I'm sure it's not pleasant to be (3) .
+    reasmb: Can you explain what made you (3) ?
+  decomp: * i am * @happy *
+    reasmb: How have I helped you to be (3) ?
+    reasmb: Has your treatment made you (3) ?
+    reasmb: What makes you (3) just now ?
+    reasmb: Can you explan why you are suddenly (3) ?
+  decomp: * i was *
+    reasmb: goto was
+  decomp: * i @belief * i *
+    reasmb: Do you really think so ?
+    reasmb: But you are not sure you (3) .
+    reasmb: Do you really doubt you (3) ?
+  decomp: * i * @belief * you *
+    reasmb: goto you
+  decomp: * i am *
+    reasmb: Is it because you are (2) that you came to me ?
+    reasmb: How long have you been (2) ?
+    reasmb: Do you believe it is normal to be (2) ?
+    reasmb: Do you enjoy being (2) ?
+key: my 2
+  decomp: $ * my *
+    reasmb: Lets discuss further why your (2) .
+    reasmb: Earlier you said your (2) .
+    reasmb: But your (2) .
+    reasmb: Does that have anything to do with the fact that your (2) ?
+  decomp: * my * @family *
+    reasmb: Tell me more about your family.
+    reasmb: Who else in your family (4) ?
+    reasmb: Your (3) ?
+    reasmb: What else comes to mind when you think of your (3) ?

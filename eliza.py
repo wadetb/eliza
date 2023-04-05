@@ -4,8 +4,8 @@ import re
 from collections import namedtuple
 
 # Fix Python2/Python3 incompatibility
-try: input = raw_input
-except NameError: pass
+# try: input = raw_input
+# except NameError: pass
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +30,10 @@ class Eliza:
         self.initials = []
         self.finals = []
         self.quits = []
+        # preprocessing
+        # this 'pres' dictionary is used to preprocess the user's input before it is processed by the chatbot. Specifically, if the user's input contains any of the keys in pres, the chatbot will replace the key with its corresponding value in pres. This can be useful for normalizing variations of certain words, such as replacing "dont" with "don't"
         self.pres = {}
+        # this 'posts' dictionary contains keys and values that are used to replace certain words or phrases in the chatbot's output before it is presented to the user
         self.posts = {}
         self.synons = {}
         self.keys = {}
@@ -40,9 +43,13 @@ class Eliza:
         key = None
         decomp = None
         with open(path) as file:
+            # read each line in text file
             for line in file:
+                # strip() return a string with all leading and trailing whitespace characters removed
+                # If the resulting string is empty, which means the original line contained only whitespace characters or was an empty line
                 if not line.strip():
                     continue
+                # extract tag (before the ':') and content
                 tag, content = [part.strip() for part in line.split(':')]
                 if tag == 'initial':
                     self.initials.append(content)
@@ -51,6 +58,7 @@ class Eliza:
                 elif tag == 'quit':
                     self.quits.append(content)
                 elif tag == 'pre':
+                    # the content of the line is split into parts using whitespace as a delimiter. The first part is treated as the key and the rest of the parts are added to the pres dictionary as the value associated with that key.
                     parts = content.split(' ')
                     self.pres[parts[0]] = parts[1:]
                 elif tag == 'post':
@@ -60,23 +68,38 @@ class Eliza:
                     parts = content.split(' ')
                     self.synons[parts[0]] = parts
                 elif tag == 'key':
+                    # examples
+                    # key: apologise
+                    # -> the word is 'apologies' and the weight is 1
+                    # key: remember 5
+                    # -> the word is 'remember' and the weight is 5
                     parts = content.split(' ')
                     word = parts[0]
                     weight = int(parts[1]) if len(parts) > 1 else 1
                     key = Key(word, weight, [])
                     self.keys[word] = key
                 elif tag == 'decomp':
+                    # example
+                    # 1. '* i remember *' -> parts = ['*', 'i', 'remember', '*']
+                    # 2. '* i @desire *' -> parts = ['*', 'i', '@desire', '*']
+                    # 3. '* i am * @sad *' -> parts = ['*', 'i', 'am', '*', '@sad', '*']
+                    # 4. '$ * my *' -> parts = ['$', '*', 'my', '*']
                     parts = content.split(' ')
                     save = False
+                    # this '$' sign will check if save = True
                     if parts[0] == '$':
                         save = True
+                        # 4. parts = ['*', 'my', '*']
                         parts = parts[1:]
                     decomp = Decomp(parts, save, [])
                     key.decomps.append(decomp)
                 elif tag == 'reasmb':
+                    # content: 'What else do you recollect ?' -> parts = ['What', 'else', 'do', 'you', 'recollect', '?']
+                    # content: 'Why do you recollect (2) just now ?' -> parts = ['Why', 'do', 'you', 'recollect' , '(2)', 'just', 'now']
                     parts = content.split(' ')
                     decomp.reasmbs.append(parts)
 
+    # a recursive function that is used to match a given input phrase (as a list of words) with a decomposition pattern (as a list of pattern parts) in order to determine the appropriate response for the given input
     def _match_decomp_r(self, parts, words, results):
         if not parts and not words:
             return True
@@ -132,6 +155,10 @@ class Eliza:
                 output.append(reword)
         return output
 
+    # substitute word with pres or synonyms
+    # words: ['cant', 'believe']
+    # self.pres (sub): {'cant': ['cannot'], 'believe': ['think']}
+    # return ['cannot', 'think']
     def _sub(self, words, sub):
         output = []
         for word in words:
@@ -172,14 +199,27 @@ class Eliza:
         if text.lower() in self.quits:
             return None
 
+        # \s : space character ' '
+        # * : appears 0 or n times
+        # \. : the '.' character
+        # + : appears 1 or n times
+        # this mean any substring with <0_to_n_spaces><1_to_n_dots><0_to_n_spaces> will be replaced with ' . ' (space then dot then space)
+        # "This ... is some text   .. .with many dots...." -> "This . is some text .  . with many dots . "
         text = re.sub(r'\s*\.+\s*', ' . ', text)
+        # ,+ : ',' appears 1 or n times
+        # <0_to_n_spaces><1_to_n_commas><0_to_n_spaces> will be replaced with ' , ' (space then comma then space)
+        # "This ,,, is some text   ,,with many commas ,,  , ,." -> 'This , is some text , with many commas ,  ,  , .'
         text = re.sub(r'\s*,+\s*', ' , ', text)
         text = re.sub(r'\s*;+\s*', ' ; ', text)
+        # 'last  night  I dreamed  . about  teeny, frahoop'
         log.debug('After punctuation cleanup: %s', text)
-
+        
+        # this will truncate redundant spaces
         words = [w for w in text.split(' ') if w]
+        # ['last', 'night', 'I', 'dreamed', '.', 'about', 'teeny', ',', 'frahoop']
         log.debug('Input: %s', words)
 
+        # subtitute words with preprocessing words
         words = self._sub(words, self.pres)
         log.debug('After pre-substitution: %s', words)
 
